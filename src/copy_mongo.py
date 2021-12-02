@@ -55,8 +55,8 @@ old_timetag = int(datetime.utcnow().timestamp() * 1000) - 1000
 
 if __name__ == '__main__':
     db_count = 3000
-    initial_leng = 1950 #902
-    bottom_end = 7600#3003
+    initial_leng = 42900 #902
+    bottom_end = 43800#3003
     while True:
         now_timetag = int(datetime.utcnow().timestamp() * 1000) - 1000
         # Get data

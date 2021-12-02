@@ -21,8 +21,8 @@ dataA = dataframe['時間']
 # dataF = dataframe['TB8004PI']
 # dataG = dataframe['MX8004PIB']
 dataD = dataframe['新營壓力']
-dataE = dataframe['太保壓力北']
-dataF = dataframe['太保壓力南']
+dataE = dataframe['太保壓力南']
+dataF = dataframe['太保壓力北']
 dataG = dataframe['民雄壓力']
 """
 db.rust1_doc.insert({
@@ -144,8 +144,8 @@ def run():
 
 if __name__ == "__main__":
     global old_timetag,count, initial_leng, bottom_end
-    initial_leng =  1950 #902
-    bottom_end = 7600 #3003
+    initial_leng =  42900 #902
+    bottom_end = 43800 #3003
     count = 0
     old_timetag = int(datetime.datetime.utcnow().timestamp() * 1000)
     run()
