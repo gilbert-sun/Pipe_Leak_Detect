@@ -38,6 +38,7 @@ db.rust1_doc.find().sort({"_id":-1}).limit(5).pretty()
 
 ![](./image/1.png)
 
+
 ## Detail
 See src/make_mongo.py , src/copy_mongo.py
 
