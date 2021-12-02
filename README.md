@@ -21,6 +21,18 @@ pip install numpy
 ```
 2.python3 copy_mongo.py
 ```
+## MongoDB Setting & instruction
+```
+settings = {
+    "ip": 'localhost',      # ip:127.0.0.1
+    "port": 27017,          # port
+    "db_name": "rust1",     # database-name
+    "set_name": "rust1_doc" # collection-name
+}
+```
+```
+db.rust1_doc.find().sort({"_id":-1}).limit(5).pretty()
+```
 
 ## Detail
 See src/make_mongo.py , src/copy_mongo.py
