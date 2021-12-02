@@ -30,6 +30,7 @@ settings = {
     "set_name": "rust1_doc" # collection-name
 }
 ```
+
 ```
 db.rust1_doc.find().sort({"_id":-1}).limit(5).pretty()
 ```
