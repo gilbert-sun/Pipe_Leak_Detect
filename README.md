@@ -33,6 +33,7 @@ settings = {
 ```
 db.rust1_doc.find().sort({"_id":-1}).limit(5).pretty()
 ```
+
 ![](./image/Screenshot from 2021-12-02 09-27-28.png)
 
 ![](./image/Screenshot from 2021-12-02 09-27-46.png)
