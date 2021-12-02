@@ -17,7 +17,7 @@ pip install numpy
 ```
 1.python3 make_mongo.py
 ```
-## Start up reading csv-file to mongoDB
+## Start up reading data from mongoDB 
 ```
 2.python3 copy_mongo.py
 ```
@@ -37,6 +37,7 @@ db.rust1_doc.find().sort({"_id":-1}).limit(5).pretty()
 ![](./image/2.png)
 
 ![](./image/1.png)
+
 
 ## Detail
 See src/make_mongo.py , src/copy_mongo.py
