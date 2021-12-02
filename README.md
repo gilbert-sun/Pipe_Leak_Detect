@@ -12,6 +12,7 @@ pip install numpy
 
 ## Environmental requirements
 * mongoDB 3.2.x or laster
+* https://www.runoob.com/mongodb/mongodb-window-install.html (install mongoDB server on win10)
 
 ## Start up reading csv-file to mongoDB
 ```
