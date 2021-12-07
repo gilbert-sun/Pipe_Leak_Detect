@@ -27,10 +27,10 @@ dataG = dataframe['民雄壓力']
 """
 db.rust1_doc.insert({
     tm:     "2021-11-29T11:12:02.256Z", 
-    f2PI:   0.01,
-    f2PIB:  0.02,
-    f4PI:   0.03,
-    f4PIB:  0.04
+    XY8002PI:   0.01,
+    TB8002PIB:  0.02,
+    TB8004PI:   0.03,
+    MX8004PIB:  0.04
 })
 """
 # --------------------------------------------------------------Begin
@@ -129,11 +129,11 @@ def async_wrDB1():
 
 
 def run():
-    global mongo, old_timetag
+    global mongo, old_timetag,initial_leng,bottom_end
     mongo = RustLogModelServices()
     old_timetag = int(datetime.datetime.utcnow().timestamp() * 1000)
-    initial_leng =  1472 #902
-    bottom_end = 4103#3003
+    # initial_leng =  1472 #902
+    # bottom_end = 4103#3003
     leng = len(dataD[initial_leng:bottom_end])
     while True:
         async_wrDB1()
@@ -144,8 +144,8 @@ def run():
 
 if __name__ == "__main__":
     global old_timetag,count, initial_leng, bottom_end
-    initial_leng =  42900 #902
-    bottom_end = 43800 #3003
+    initial_leng =  42350#700#52803#30700#42900 #902
+    bottom_end = 56300#3000#56802#52802#43800 #3003
     count = 0
     old_timetag = int(datetime.datetime.utcnow().timestamp() * 1000)
     run()
