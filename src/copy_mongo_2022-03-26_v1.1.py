@@ -3,25 +3,30 @@
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
+import os, time
 from datetime import datetime, timedelta
 from scipy.signal import find_peaks
-
-from time import strptime,mktime
-import pymongo
-import csv,os, sys,time
 import matplotlib.pyplot as plt
-# --------------------------------------------------------------Gilbert_End
-settings = {
-    "ip": 'localhost',  # ip:127.0.0.1
-    "port": 27017,  # port
-    "db_name": "rust1",  # database-name
-    "set_name": "rust1_doc"  # collection-name
-}
-# Mongo Connection
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient[settings["db_name"]]
-mycol = mydb[settings["set_name"]]
+import pymongo
+import csv
 
+# Mongo Connection
+myclient = pymongo.MongoClient("mongodb://192.168.1.213:27017/")
+mycol = myclient.RTTM.MergeData
+
+def add_x_hours(oldtime, hr = 0 ):
+    struct = time.strptime(str(oldtime), "%Y-%m-%d %H:%M:%S")
+    mk = time.mktime(struct)
+    real_mk = time.localtime(mk+hr*60*60)
+    real_time = time.strftime("%Y-%m-%d %H:%M:%S", real_mk)
+    return real_time
+
+def time_number(oldtime):
+    struct = time.strptime(str(oldtime), "%Y-%m-%d %H:%M:%S")
+    mk = time.mktime(struct)
+    return mk
+#--------------------------------------------------------------------------------------------------------------2022-03-26,gilbert_start
+#--------------------------------------------------------------------------------------------------------------2022-03-26,gilbert
 def compare_8002Time(NorthPeak,SouthPeak):
     struct1 = strptime((NorthPeak), "%Y-%m-%d %H:%M:%S")
     NT = mktime(struct1)
@@ -266,11 +271,11 @@ def find_last_peak_and_plot_8002():
         axes[1, 1].set_title('Δ TB8002PIB-1', fontsize=12, )
         axes[1, 1].tick_params(axis='x', rotation=75)
         plt.savefig("LDS_8002_" + df.iloc[i, 0].__str__() + "_.png")
-        # plt.show()
         with open('abnormal_8002.txt','a') as fs:
             fs.write("XY8002PI==>  洩漏.發生時間: " + str(
                 df.iloc[i, 0].__str__() + "\n北站: " + str(lresult2[0][0]) + "\t<==> 南站: " + str(
                     lresult3[0][0]) +'\n'))
+        # plt.show()
         # ---------------------------------------------------------------------------------------
 
 def find_last_peak_and_plot_8004():
@@ -466,87 +471,8 @@ def find_last_peak_and_plot_8004():
                 df.iloc[i, 0].__str__() + "\n北站: " + str(lresult2[0][0]) + "\t<==> 南站: " + str(
                     lresult_south[0][0]) +'\n'))
         # plt.show()
-
-def add_x_hours(oldtime, hr = 0 ):
-    struct = time.strptime(str(oldtime), "%Y-%m-%d %H:%M:%S")
-    mk = time.mktime(struct)
-    real_mk = time.localtime(mk+hr*60*60)
-    real_time = time.strftime("%Y-%m-%d %H:%M:%S", real_mk)
-    return real_time
-
-def time_number(oldtime):
-    struct = time.strptime(str(oldtime), "%Y-%m-%d %H:%M:%S")
-    mk = time.mktime(struct)
-    return mk
-# gg = datetime.strptime("2021-06-30 11:23:31", '%Y-%m-%d %H:%M:%S')
-# find_2endpoint_time(gg,"8004","/home/gilbert3/Documents/pipe_leak_detect/src/abnormal_time3.txt")
-def find_2endpoint_backtime(dateTime, pipeType ,File = 'abnormal_time3.txt',File1= 'abnormal_time4.txt'):
-    if not os.path.exists(File):
-        open(File, 'w').close()
-    with open(File, 'r') as fs:
-        fstream = fs.readlines()
-
-    lastLines = fstream[len(fstream) - 1:]
-    print ("=====================> ", lastLines, " :>  ", dateTime )
-    newLine = (lastLines[0].__str__().strip()+ " <:> " +dateTime.__str__()+" " + pipeType + " pipeline")
-    print ("=====================11> ", lastLines[0].__str__().strip()," >> ",lastLines[0])
-    if len(lastLines.__str__().strip()) > 0  and lastLines!= [] and lastLines!= ['\n']:
-        lastLines = fstream[len(fstream) - 1:].__str__().split()
-        print ("=====================22> ", lastLines)
-        # lastLines = lastLine.__str__().split()
-        # print("----------------:Hello: ", lastLines[3].split("-"), lastLines[4].split(":"))
-        # if lastLines != [] :
-        fTime = datetime((int)(lastLines[3].split("-")[0]), (int)(lastLines[3].split("-")[1]),
-                         (int)(lastLines[3].split("-")[2]), (int)(lastLines[4].split(":")[0]),
-                         (int)(lastLines[4].split(":")[1]), (int)(lastLines[4].split(":")[2]))
-        print ("=====================33> ", fTime, type(fTime))
-    else:
-        fTime = 0
-    # print ("=====================3> ", dd)
-    if fTime == 0 or ( (fTime + timedelta(seconds=30)) >= dateTime):
-        with open(File1, 'a') as fs:
-            # for idx in range(len(fstream)):
-            #     fs.write(fstream[idx])
-            # if fTime == 0 or fTime == []:
-            #     fs.write(newLine)
-            # else:
-                fs.write(newLine+"\n")
-    print ("=====================44> ", newLine)
-
-def find_2endpoint_time(dateTime, pipeType ,File = 'abnormal_time3.txt'):
-    if not os.path.exists(File):
-        open(File, 'w').close()
-    with open(File, 'r') as fs:
-        fstream = fs.readlines()
-
-    lastLines = fstream[len(fstream) - 1:]
-    print ("=====================> ", lastLines, " :>  ", dateTime )
-    newLine = ('=== abnormal === '+dateTime.__str__()+" " + pipeType + " pipeline")
-    print ("=====================1> ", lastLines.__str__().strip()," >> ",lastLines)
-    if len(lastLines.__str__().strip()) > 0  and lastLines!= [] and lastLines!= ['\n']:
-        lastLines = fstream[len(fstream) - 1:].__str__().split()
-        print ("=====================2> ", lastLines)
-    # lastLines = lastLine.__str__().split()
-    # print("----------------:Hello: ", lastLines[3].split("-"), lastLines[4].split(":"))
-    # if lastLines != [] :
-        fTime = datetime((int)(lastLines[3].split("-")[0]), (int)(lastLines[3].split("-")[1]),
-                      (int)(lastLines[3].split("-")[2]), (int)(lastLines[4].split(":")[0]),
-                      (int)(lastLines[4].split(":")[1]), (int)(lastLines[4].split(":")[2]))
-        print ("=====================3> ", fTime)
-    else:
-        fTime = 0
-    # print ("=====================3> ", dd)
-    if fTime == 0 or ( (fTime + timedelta(seconds=30)) < dateTime):
-        with open(File, 'w') as fs:
-            for idx in range(len(fstream)):
-                fs.write(fstream[idx])
-            if fTime == 0 or fTime == []:
-                fs.write(newLine)
-            else:
-                fs.write("\n"+newLine)
-    print ("=====================4> ", newLine)
-
-
+#--------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------2022-03-26,gilbert_finish
 def replace_finalTime(dateTime, pipeType ,File = 'abnormal_time.txt'):
     with open(File, 'r') as fs:
         fstream = fs.readlines()
@@ -566,7 +492,6 @@ def replace_finalTime(dateTime, pipeType ,File = 'abnormal_time.txt'):
     else:
         dd = 0
     # print ("=====================3> ", dd)
-    # dateTime = datetime.strptime(dateTime, '%Y-%m-%d %H:%M:%S')
     if  dd == 0 or dd > dateTime  :
         with open(File, 'w') as fs:
             for idx in range(len(fstream)-1):
@@ -577,59 +502,21 @@ count = 0
 count2 = 0
 s = 0
 ab_time = []
-global old_timetag,count1
-count1 = 0
-old_timetag = int(datetime.utcnow().timestamp() * 1000) - 1000
-filename = 0
 if __name__ == '__main__':
-    db_count = 10
-    initial_leng =  880#3390#1540#25720#1900#1588#1800#42501#39100#42350#700#52803#30700#42900 #902
-    bottom_end = 2600#4100#4700#69300#7600#3600#43500#42500#56300#3000#56802#52802#43800 #3003
-    ab_flag = 0
-    db_period_time = 240
     while True:
-        now_timetag = int(datetime.utcnow().timestamp() * 1000) - 1000
         # Get data
-        #last_update = ""
-        # if (now_timetag> old_timetag and count1 < 2000 ):
         last_update = mycol.find_one({}, {'_id':0 , 'tm':1 , 'XY8002PI':1 , 'TB8002PIB':1 , 'TB8004PI':1 , 'MX8004PIB':1}, sort=[('tm', pymongo.DESCENDING)])
-        # old_timetag = int(datetime.utcnow().timestamp() * 1000)
 
         end_duration = last_update['tm']
         end_duration_struct = time.strptime(end_duration.__str__(), "%Y-%m-%d %H:%M:%S")
         end_duration_mk = time.mktime(end_duration_struct)
-        begin_duration_mk = time.localtime(end_duration_mk - db_period_time)
-        # print("----------------------------------------: > ", last_update['tm'], " : " ,end_duration)
+        begin_duration_mk = time.localtime(end_duration_mk-240)
         tm_year = begin_duration_mk.tm_year
         tm_mon = begin_duration_mk.tm_mon
         tm_mday = begin_duration_mk.tm_mday
         tm_hour = begin_duration_mk.tm_hour
         tm_min = begin_duration_mk.tm_min
         tm_sec = begin_duration_mk.tm_sec
-
-        if (now_timetag> old_timetag):
-            print("----------------------------------------: > ", type(end_duration), " : " ,end_duration," : " )
-            print(count1," : ", last_update , " : ", datetime.now())
-
-            print("--------------: ====================================================================>: ",end_duration_struct, " <> ",  begin_duration_mk)
-            old_timetag = int(datetime.utcnow().timestamp() * 1000)
-            count1+=1
-            # initial_leng =  1472 #902
-            # bottom_end = 4103#3003
-            if( count1 >= (bottom_end - initial_leng)):
-                break
-        # print(last_update)
-        # end_duration = last_update['tm']
-        # end_duration_struct = time.strptime(end_duration.__str__(), "%Y-%m-%d %H:%M:%S")
-        # end_duration_mk = time.mktime(end_duration_struct)
-        # begin_duration_mk = time.localtime(end_duration_mk - 240)
-        # print("--------------: ",end_duration_struct, " <> ",  begin_duration_mk)
-        # tm_year = begin_duration_mk.tm_year
-        # tm_mon = begin_duration_mk.tm_mon
-        # tm_mday = begin_duration_mk.tm_mday
-        # tm_hour = begin_duration_mk.tm_hour
-        # tm_min = begin_duration_mk.tm_min
-        # tm_sec = begin_duration_mk.tm_sec
         # begin_duration = time.strftime("%Y-%m-%d %H:%M:%S", begin_duration_mk)
         # print('Begin Time:\t', begin_duration)
         # print('End Time:\t', end_duration)
@@ -651,22 +538,14 @@ if __name__ == '__main__':
             dataE.append(dic['TB8002PIB'])
             dataF.append(dic['TB8004PI'])
             dataG.append(dic['MX8004PIB'])
-        colnames = ['TIME','XY8002PI','TB8002PIB','TB8004PI','MX8004PIB']
-        df = DataFrame(TIME, columns=['TIME'] )
-        # df["TIME"] = TIME
+
+        df = DataFrame(TIME, columns=['TIME'])
         df['XY8002PI'] = dataD
         df['TB8002PIB'] = dataE
         df['TB8004PI'] = dataF
         df['MX8004PIB'] = dataG
-        # df1=df.set_index('TIME', inplace = True)
         # print(df)
 
-        # if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-        #     print("--------------------------------<>>>>>> ",df.iloc[90:95,0] , " : " , (df.iloc[90:95,0].shape))
-        #     peaks111 = np.array([0])
-        #     yy = (df.iloc[peaks111*30,0].__str__().split("\n")[0].strip().split(" ")[3]+" "+ df.iloc[peaks111*30,0].__str__().split("\n")[0].strip().split(" ")[4])
-        #     zz = datetime.strptime( yy, "%Y-%m-%d %H:%M:%S")
-        #     print("=============-------getpeaktime2.02222 == 0.9--------===============",zz )
         ave_D = []
         ave_E = []
         ave_F = []
@@ -711,26 +590,6 @@ if __name__ == '__main__':
         peaks10, _ = find_peaks(delta_E, height=0.03,width=1.5)
         peaks11, _ = find_peaks(delta_F, height=0.03,width=1.5)
         peaks12, _ = find_peaks(delta_G, height=0.03,width=1.5)
-        if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-            print("=============-------getpeaktime1 == 0.88--------===============",len(delta_D)," : " ,len(delta_E)," : " ,len(delta_F)," : " ,len(delta_G)," : " ,(delta_D))
-            print("=============-------getpeaktime1 == 0.9--------===============",df.iloc[peaks9*averagescale, 0]," : " ,type(peaks9)," : " ,len(peaks9)," : " ,(peaks9))
-            print("=============-------getpeaktime1.01 == 0.9--------===============",df.iloc[peaks10*averagescale, 0]," : " ,type(peaks10)," : " ,len(peaks10)," : " ,(peaks10) )
-            print("=============-------getpeaktime2 == 0.9--------===============",df.iloc[peaks11*averagescale, 0]," : " ,type(peaks11)," : " ,len(peaks11)," : " ,(peaks11))
-            print("=============-------getpeaktime2.01 == 0.9--------===============>",df.iloc[peaks12*averagescale, 0]," : " ,type(peaks12)," : " ,len(peaks12)," : " ,(peaks12))
-            if len(peaks9) > 0:
-                print("=============-------getpeaktime1.02 == 0.9--------===============",df.iloc[peaks9*averagescale, 0]," : " ,type(peaks9)," : " ,len(peaks9)," : " ,(peaks9))
-                yy = (df.iloc[peaks9*30,0].__str__().split("\n")[0].strip().split(" ")[3]+" "+ df.iloc[peaks9*30,0].__str__().split("\n")[0].strip().split(" ")[4])
-                zz = datetime.strptime( yy, "%Y-%m-%d %H:%M:%S")
-                print("8002=============-------> ", zz)
-                find_2endpoint_time(zz, "8002")
-            if len(peaks11) > 0:
-                print("=============-------getpeaktime2.02 == 0.9--------===============",df.iloc[peaks11*averagescale, 0]," : " ,type(peaks11)," : " ,len(peaks11)," : " ,(peaks11))
-                yy = (df.iloc[peaks11*30,0].__str__().split("\n")[0].strip().split(" ")[3]+" "+ df.iloc[peaks11*30,0].__str__().split("\n")[0].strip().split(" ")[4])
-                zz = datetime.strptime( yy, "%Y-%m-%d %H:%M:%S")
-                print("8004=============-------> ", zz)
-                find_2endpoint_time(zz, "8004")
-
-            # replace_finalTime(df.iloc[compare2[0]*averagescale,0], "8004" ,"abnormal_time1.txt")
 
         # fig,axes = plt.subplots(4, 2, figsize=(10,7) )
         # axes[0,0].plot(ave_D)
@@ -768,50 +627,29 @@ if __name__ == '__main__':
         compare2.sort()
         getpeak1 = []
         getpeak2 = []
-        # if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 998):
-
-
-
 
         for i in range(len(compare1)-1):
             if abs(compare1[i]-compare1[i+1])<2:
                 getpeak1.append(compare1[i])
-                if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                    print("=============-------getpeaktime1--------===============",df.iloc[compare1[i]*averagescale, 0])
-                    print("--------------------------------------------------------------------------------------------------------------------------------------------")
-                    print("=============-------getpeaktime1 == 0.99--------===============",df.iloc[compare1[0]*averagescale, 0]," : " ,type(compare1)," : " ,len(compare1)," : " ,(compare1))
         getpeaktime1 = np.array(getpeak1)*averagescale
 
         for i in range(len(compare2)-1):
             if abs(compare2[i]-compare2[i+1])<2 :
                 getpeak2.append(compare2[i])
-                if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                    print("=============-------getpeaktime2--------===============", i, " : " ,df.iloc[compare2[i]*averagescale, 0]," : ",len(compare2)," : ",compare2[i]," : ",compare2, " : ",compare2[i]*averagescale)
-                    print("--------------------------------------------------------------------------------------------------------------------------------------------")
-                    print("=============-------getpeaktime2== 0.99--------===============",df.iloc[compare2[0]*averagescale, 0]," : " ,type(compare2)," : " ,len(compare2)," : " ,(compare2))
-                # print("=============-------getpeaktime2.1--------===============", i, " : " ,getpeak2," : ",np.array(getpeak2)*averagescale, " : " ,len(getpeak2)," : ",type(getpeak2))
-            # else:
-            #     print("=============-------getpeaktime2.1--------===============else")
         getpeaktime2 = np.array(getpeak2)*averagescale
-        if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-            print("=============-------getpeaktime2.2--------===============",np.array(getpeak2)*averagescale, " : " ,len(getpeak2)," : ",type(getpeak2), " : ", getpeaktime2 , " : ", type(getpeaktime2)," : ", len(getpeaktime2), ":" ,getpeak2)
-            print("=============-------getpeaktime2.3--------===============",  getpeaktime2.shape[0], " : ", getpeaktime1.shape[0])
-            # print("=============-------getpeaktime2.4--------===============",df.iloc[getpeak2*averagescale, 0] )
+
         time_l = []
-        # if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 980):
-        #     print("=============-------getpeaktime2.44444444444--------===============")
         if getpeaktime1.shape[0] <= 0 and getpeaktime2.shape[0] <= 0:
             count = count+1
             count2 = 0
             ab_flag = 0
-            if count == db_count:
+            if count == 3000:
                 count = 0
                 try:
-                    real_time = add_x_hours(df.iloc[db_period_time-1,0])
+                    real_time = add_x_hours(df.iloc[239,0])
 
-                    if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                        print('=== normal ===------------------------------------------------------------ '+str(real_time))
-                    with open('now.csv','w') as f:
+                    print('=== normal === '+str(real_time))
+                    with open('now_1.csv','w') as f:
                         writer = csv.writer(f)
                         t = []
                         t.append(real_time)
@@ -834,33 +672,20 @@ if __name__ == '__main__':
                 count2 = 0
                 # s = s + 1
                 # df.to_csv(str(s)+'error.csv', index=False)
-                # if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 920):
-                #     print("=============-------getpeaktime2.4999999999999999999--------===============",  len(getpeaktime2), " : ", getpeaktime2.shape[0], " : ",getpeaktime2," : " ,time_l)
-                #     print("=============")
                 for i in getpeaktime1:
                     time_l.append(add_x_hours(df.iloc[i, 0])+" 8002 pipeline")
                     ab_time.append(time_number(df.iloc[i, 0]))
                     if ab_flag == 1:
                             replace_finalTime(df.iloc[compare1[0]*averagescale,0], "8002" ,"abnormal_time1.txt")
-                    if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                        print("=============-------getpeaktime1.5--------===============",  compare1, " : ", getpeaktime1.shape[0], " : ",getpeaktime1 ," : " ,time_l)
+
                 for i in getpeaktime2:
                     time_l.append(add_x_hours(df.iloc[i, 0])+" 8004 pipeline")
                     ab_time.append(time_number(df.iloc[i, 0]))
-                    # if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 990) :
                     if ab_flag == 1:
                             replace_finalTime(df.iloc[compare2[0]*averagescale,0], "8004" ,"abnormal_time1.txt")
-                    if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                        print("=============-------getpeaktime2.5--------===============", i  ,":" ,compare2, " : ", getpeaktime2.shape[0], " : ",getpeaktime2," : " ,time_l)
-                        print("=============-------getpeaktime2.51--------===============", df.iloc[i, 0]  ,":" ,add_x_hours(df.iloc[i, 0]))
-
                 time_l.sort()
 
                 # ab_time.append(time_number(df.iloc[i, 0]))
-                if (int(datetime.utcnow().timestamp() * 1000)  > old_timetag + 999):
-                    print("")
-                    print("=============-------getpeaktime 1.6/2.6-------===============", len(ab_time)," : ",len(ab_time)-1," : ", ab_time[len(ab_time)-1]," : ", ab_time[len(ab_time)-2] ," : ",30+ab_time[len(ab_time)-2] )
-                    print("=============-------getpeaktime 1.7/2.7-------===============",ab_time[len(ab_time)-1]," : ",ab_time[len(ab_time)-2]," : ", (datetime.utcnow().timestamp() * 1000))
                 if ab_time[len(ab_time)-1]>(30+ab_time[len(ab_time)-2]) or len(ab_time)==1:
 
                     ab_flag = 1
@@ -869,34 +694,22 @@ if __name__ == '__main__':
                     # print(time_l)
 
                     for i in time_l:
-
-                        print("=============-------final-------===============",i ," : ",len(ab_time)," : ",(time_l)," : ",time_l[0]," : ", ab_time[0]," : ",getpeaktime2.shape[0])
-                        print('=== abnormal === '+str(i) + " :-----------------------------0---------------------------------->: happenTime >>  "+ (end_duration - timedelta(seconds=1)).__str__()) # ==> compare2/compare1 , find_peak9/10 ; find_peak11/12
-                        print("==========compare1 : > ", compare1 ," :==========find_peak9/10 : > ", peaks9, " : ",df.iloc[peaks9*averagescale, 0], peaks10, " : ",df.iloc[peaks10*averagescale, 0])
-                        print("==========compare2 : > ", compare2 ," :==========find_peak11/12 : > ", peaks11, " : ",df.iloc[peaks11*averagescale, 0], peaks12, " : ",df.iloc[peaks12*averagescale, 0] )
-                        print("------------------------------------------------------------------------------------------------------")
-
+                        print('=== abnormal === '+str(i))
                         f = open('abnormal_time.txt','a')
-                        f.write('=== abnormal === '+i.__str__()+'\n')
+                        f.write('=== abnormal === '+i+'\n')
                         f.close
                         with open('abnormal_time1.txt','a') as fs:
-                            fs.write('=== abnormal === '+i.__str__()+'\n')
+                            fs.write('=== abnormal === '+i+'\n')
                         with open('abnormal_time2.txt','a') as fs:
-                            fs.write('=== abnormal === '+i.__str__()+" >> alterTime >>  "+ (end_duration - timedelta(seconds=1)).__str__()+"\n")
+                            fs.write('=== abnormal === '+i+" >> alterTime >>  "+ (end_duration - timedelta(seconds=1)).__str__()+ "\n")
+                        with open('abnormal_1.csv','w') as file:
+                            writer = csv.writer(file)
+                            ti = []
+                            ti.append(i)
+                            writer.writerow(ti)
 
-                    find_last_peak_and_plot_8002()
-
-                    find_last_peak_and_plot_8004()
-
-
-                        # if compare1 != []:
-                        #     find_2endpoint_backtime(df.iloc[compare1[1]*averagescale,0],"8002")
-                        # if compare2 != []:
-                        #     find_2endpoint_backtime(df.iloc[compare2[1]*averagescale,0],"8004")
-                        # with open('abnormal.csv','w') as file:
-                        #     writer = csv.writer(file)
-                        #     ti = []
-                        #     ti.append(i)
-                        #     writer.writerow(ti)
-
+                #adding by gilbert 2022-03-26 detecting south & north leak_peak
+                find_last_peak_and_plot_8002()
+                #adding by gilbert 2022-03-26 detecting south & north leak_peak
+                find_last_peak_and_plot_8004()
 

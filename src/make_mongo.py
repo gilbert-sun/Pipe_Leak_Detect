@@ -16,14 +16,18 @@ print(all_file_list[filename])
 dataframe = pd.read_csv(file)
 
 dataA = dataframe['時間']
-# dataD = dataframe['XY8002PI']
-# dataE = dataframe['TB8002PIB']
-# dataF = dataframe['TB8004PI']
-# dataG = dataframe['MX8004PIB']
-dataD = dataframe['新營壓力']
-dataE = dataframe['太保壓力南']
-dataF = dataframe['太保壓力北']
-dataG = dataframe['民雄壓力']
+dataD = dataframe['XY8002PI']
+dataE = dataframe['TB8002PIB']
+dataF = dataframe['TB8004PI']
+dataG = dataframe['MX8004PIB']
+# dataD = dataframe['新營壓力']
+# dataE = dataframe['太保壓力南']#['太保壓力北']
+# dataF = dataframe['太保壓力北']
+# dataG = dataframe['民雄壓力']
+# dataD = dataframe['新營壓力']
+# dataE = dataframe['太保壓力南'] #dataframe['太保壓力北']
+# dataF = dataframe['太保壓力北'] #dataframe['太保壓力南']
+# dataG = dataframe['民雄壓力']
 """
 db.rust1_doc.insert({
     tm:     "2021-11-29T11:12:02.256Z", 
@@ -129,23 +133,28 @@ def async_wrDB1():
 
 
 def run():
-    global mongo, old_timetag,initial_leng,bottom_end
+    global mongo, old_timetag,initial_leng,bottom_end, count
     mongo = RustLogModelServices()
     old_timetag = int(datetime.datetime.utcnow().timestamp() * 1000)
     # initial_leng =  1472 #902
     # bottom_end = 4103#3003
+    # initial_leng =  38700#38700#1540#25720#1900#400#1588#1800#42501#39100#42350#700#52803#30700#42900 #902
+    # bottom_end = 53000#40250#53000#40400#56300#4700#69300#7600#3300#4400#43500#42500#56300#3000#56802#52802#43800 #3003
     leng = len(dataD[initial_leng:bottom_end])
+    count = 0
     while True:
         async_wrDB1()
         if(count >= leng):
             break
-    print("-------------------------Write DB End")
+    print("-------------------------Write DB End:: >", leng, initial_leng,bottom_end,len(dataD))
 
 
 if __name__ == "__main__":
     global old_timetag,count, initial_leng, bottom_end
-    initial_leng =  42350#700#52803#30700#42900 #902
-    bottom_end = 56300#3000#56802#52802#43800 #3003
+    initial_leng =  880#3390#2050#1500#39541#0#38700#1540#25720#1900#400#1588#1800#42501#39100#42350#700#52803#30700#42900 #902
+    bottom_end = 2600#4100#2900#4600#52800#3000#40250#53000#40400#56300#4700#69300#7600#3300#4400#43500#42500#56300#3000#56802#52802#43800 #3003
     count = 0
     old_timetag = int(datetime.datetime.utcnow().timestamp() * 1000)
+    print("1--------------:> ",bottom_end)
+    print("2--------------:> ",initial_leng)
     run()
